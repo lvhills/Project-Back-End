@@ -1,5 +1,13 @@
 const usersService = require('./users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
+//const { createUser, updateUser, isEmailTaken } = require('./users-service');
+const {
+  EMAIL_ALREADY_TAKEN,
+  INVALID_PASSWORD,
+} = require('../../../core/errors');
+const {
+  changePasswordSchema,
+} = require('../../components/users/users-validator');
 
 /**
  * Handle get list of users request
@@ -50,7 +58,15 @@ async function createUser(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
     const password = request.body.password;
+    const password_confirm = request.body.password_confirm;
 
+    //Check if password matches password_confirm
+    if (password !== password_confirm) {
+      throw errorResponder(
+        errorTypes.INVALID_PASSWORD,
+        'Password and confirmation do not match'
+      );
+    }
     const emailTaken = await usersService.isEmailTaken(email);
     if (emailTaken) {
       throw errorResponder(
@@ -133,10 +149,34 @@ async function deleteUser(request, response, next) {
   }
 }
 
+async function changePassword(request, response, next) {
+  try {
+    // Validate request body
+    await changePasswordSchema.validateAsync(request.body);
+
+    // extract data from request body
+    const userId = request.params.id;
+    const { oldPassword, newPassword } = request.body;
+
+    //call service to change  password
+    await usersService.changePassword(userId, oldPassword, newPassword);
+
+    return response.status(200).json({ success: true });
+  } catch (error) {
+    if (error.isJoi) {
+      return next(
+        errorResponder(errorTypes.INVALID_INPUT, error.details[0].message)
+      );
+    }
+    return next(error);
+  }
+}
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
+  changePassword,
 };
