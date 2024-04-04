@@ -1,6 +1,6 @@
 const usersRepository = require('./users-repository');
 const { hashPassword } = require('../../../utils/password');
-const { EMAIL_ALREADY_TAKEN } = require('../core/errors');
+const { EMAIL_ALREADY_TAKEN } = require('../../../core/errors');
 
 /**
  * Get list of users
@@ -50,6 +50,11 @@ async function getUser(id) {
  * @returns {boolean}
  */
 async function createUser(name, email, password) {
+  // Check email if already taken
+  const emailTaken = await isEmailTaken(email);
+  if (emailTaken) {
+    throw EMAIL_ALREADY_TAKEN;
+  }
   // Hash password
   const hashedPassword = await hashPassword(password);
 
