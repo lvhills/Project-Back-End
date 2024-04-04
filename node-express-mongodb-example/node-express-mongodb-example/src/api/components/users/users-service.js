@@ -1,5 +1,6 @@
 const usersRepository = require('./users-repository');
 const { hashPassword } = require('../../../utils/password');
+const { EMAIL_ALREADY_TAKEN } = require('../core/errors');
 
 /**
  * Get list of users
@@ -107,10 +108,15 @@ async function deleteUser(id) {
   return true;
 }
 
+async function isEmailTaken(email) {
+  return usersRepository.isEmailTaken(email);
+}
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
+  isEmailTaken,
 };
