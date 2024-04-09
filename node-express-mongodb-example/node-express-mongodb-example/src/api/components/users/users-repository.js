@@ -62,16 +62,10 @@ async function deleteUser(id) {
   return User.deleteOne({ _id: id });
 }
 
-async function isEmailTaken(email){
-  const user = await User.findOne({ email });
-  return !!user;
-}
-
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
-  isEmailTaken,
 };
