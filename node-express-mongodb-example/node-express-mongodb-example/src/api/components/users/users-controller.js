@@ -1,5 +1,6 @@
 const usersService = require('./users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
+const { EMAIL_ALREADY_TAKEN } = require('../../../core/errors');
 
 /**
  * Handle get list of users request
