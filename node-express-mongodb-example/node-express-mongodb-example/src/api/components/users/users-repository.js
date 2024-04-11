@@ -70,6 +70,14 @@ async function isEmailTaken(email) {
   return !!user;
 }
 
+async function getPassword(password) {
+  return User.find({ password: password });
+}
+
+async function getNewPassword(id, newPassword) {
+  return User.findByIdAndUpdate(id, { password: newPassword });
+}
+
 module.exports = {
   getUsers,
   getUser,
@@ -77,4 +85,6 @@ module.exports = {
   updateUser,
   deleteUser,
   isEmailTaken,
+  getPassword,
+  getNewPassword,
 };

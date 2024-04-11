@@ -1,5 +1,5 @@
 const usersRepository = require('./users-repository');
-const { hashPassword } = require('../../../utils/password');
+const { hashPassword, passwordMatched } = require('../../../utils/password');
 const { EMAIL_ALREADY_TAKEN } = require('../../../core/errors');
 
 /**
@@ -124,6 +124,28 @@ async function isEmailTaken(email) {
   return usersRepository.isEmailTaken(email);
 }
 
+async function changePasswordSchema(
+  id,
+  oldPassword,
+  newPassword,
+  password_confirm
+) {
+  if (password_confirm != newPassword) {
+    throw new Error('Invalid New Password');
+  }
+  const getUserId = await usersRepository.getUser(id);
+  const comparePassword = await passwordMatched(
+    oldPassword,
+    getUserId.password
+  );
+  if (!comparePassword) {
+    throw new Error('Wrong password');
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  await usersRepository.getNewPassword(id, hashedPassword);
+}
+
 module.exports = {
   getUsers,
   getUser,
@@ -131,4 +153,5 @@ module.exports = {
   updateUser,
   deleteUser,
   isEmailTaken,
+  changePasswordSchema,
 };
